@@ -1,0 +1,15 @@
+{
+  "apps": {
+    "name": "backend",
+    "cwd": "./",
+    "script": "./bin/www",
+    "log_date_format": "YYYY-MM-DD HH:mm Z",
+    "node_args": "--harmony",
+    "instances": 1,
+    "instance_var": "INSTANCE_ID",
+    "exec_mode": "cluster",
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}
