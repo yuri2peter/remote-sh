@@ -1,6 +1,7 @@
 const fs = require('fs-extra');
 const router = require('koa-router')();
-const { md5, waitUntill } = require('@yuri2/utils-general');
+const YlMemCache = require('yl-mem-cache');
+const { md5, waitUntill, opFrequencyTest } = require('@yuri2/utils-general');
 const { spawn } = require('child_process');
 const { Readable } = require('stream');
 const filePathAK = require('path').resolve(__dirname, '../access_key');
@@ -10,12 +11,21 @@ fs.ensureDirSync(dirPathScripts); // 保证脚本目录的存在
 
 const regexScriptName = /^[\w.\u4e00-\u9fa5]{0,63}\.sh$/;
 const regexScriptNameErrorText = `Invalid script name. Name must match ${regexScriptName.toString()}`;
+const blackList = new YlMemCache('blackList'); // ip 黑名单
 
-function checkAK(ak) {
+function checkAK(ctx) {
   // 首先检查本地ak文件是否存在
   if (fs.existsSync(filePathAK)) {
     const trueAK = fs.readFileSync(filePathAK, 'utf-8');
-    return trueAK === ak;
+    const match = trueAK === ctx.request.body.ak;
+    if (!match) {
+      const key = getUserIp(ctx);
+      if (!opFrequencyTest(key, 60, 10)) {
+        // 失败次数过多IP加入黑名单
+        blackList.set(key, true, YlMemCache.ONE_HOUR);
+      }
+    }
+    return match;
   } else {
     return false;
   }
@@ -34,10 +44,19 @@ function getSignature(name) {
   }
 }
 
+// koa2 中 req 为 ctx.req
+const getUserIp = ({ req }) => {
+  return (
+    req.headers['x-forwarded-for'] ||
+    req.connection.remoteAddress ||
+    req.socket.remoteAddress ||
+    req.connection.socket.remoteAddress
+  );
+};
+
 // 验证accesskey
 router.post('/ak/verify', async ctx => {
-  const { ak } = ctx.request.body;
-  ctx.body = { match: checkAK(ak) };
+  ctx.body = { match: checkAK(ctx) };
 });
 
 // 重置accesskey
@@ -65,8 +84,8 @@ router.post('/ak/reset', async ctx => {
 
 // 写脚本
 router.post('/script/write', async ctx => {
-  const { ak, name, content } = ctx.request.body;
-  if (!checkAK(ak)) {
+  const { name, content } = ctx.request.body;
+  if (!checkAK(ctx)) {
     ctx.body = { error: 'AK not match.' };
     return;
   }
@@ -74,6 +93,11 @@ router.post('/script/write', async ctx => {
     ctx.body = {
       error: regexScriptNameErrorText,
     };
+    const key = getUserIp(ctx);
+    if (!opFrequencyTest(key, 60, 10)) {
+      // 失败次数过多IP加入黑名单
+      blackList.set(key, true, YlMemCache.ONE_HOUR);
+    }
     return;
   }
   if (typeof content !== 'string') {
@@ -90,8 +114,8 @@ router.post('/script/write', async ctx => {
 
 // 读取脚本内容
 router.post('/script/read', async ctx => {
-  const { ak, name } = ctx.request.body;
-  if (!checkAK(ak)) {
+  const { name } = ctx.request.body;
+  if (!checkAK(ctx)) {
     ctx.body = { error: 'AK not match.' };
     return;
   }
@@ -116,8 +140,8 @@ router.post('/script/read', async ctx => {
 
 // 删除脚本
 router.post('/script/remove', async ctx => {
-  const { ak, name } = ctx.request.body;
-  if (!checkAK(ak)) {
+  const { name } = ctx.request.body;
+  if (!checkAK(ctx)) {
     ctx.body = { error: 'AK not match.' };
     return;
   }
@@ -135,15 +159,12 @@ router.post('/script/remove', async ctx => {
 
 // 列出脚本
 router.post('/script/list', async ctx => {
-  const { ak } = ctx.request.body;
-  if (!checkAK(ak)) {
+  if (!checkAK(ctx)) {
     ctx.body = { error: 'AK not match.' };
     return;
   }
   const dir = fs.readdirSync(dirPathScripts);
-  ctx.body = {
-    dir,
-  };
+  ctx.body = dir;
 });
 
 const runningScriptNames = new Set();
@@ -157,7 +178,18 @@ router.get('/script/run/:name/:sign', async ctx => {
     };
     return;
   }
-  if (typeof sign !== 'string' || sign !== getSignature(name)) {
+  if (typeof sign !== 'string') {
+    ctx.body = {
+      error: 'Invalid signature.',
+    };
+    return;
+  }
+  if (sign !== getSignature(name)) {
+    const key = getUserIp(ctx);
+    if (opFrequencyTest(key, 10, 3)) {
+      // 失败次数过多IP加入黑名单
+      blackList.set(key, true, YlMemCache.ONE_HOUR);
+    }
     ctx.body = {
       error: 'Invalid signature.',
     };
@@ -178,13 +210,16 @@ router.get('/script/run/:name/:sign', async ctx => {
     });
     handle.on('error', () => {
       runningScriptNames.delete(name);
+      readable.push('\nError occured.\n');
       readable.push(null);
     });
     handle.on('close', () => {
       runningScriptNames.delete(name);
+      readable.push('\nFinished.\n');
       readable.push(null);
     });
     ctx.body = readable;
+    ctx.type = 'text';
   } else {
     ctx.body = {
       error: 'File not exists.',
