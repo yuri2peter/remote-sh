@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const fs = require('fs');
 const http = require('http');
 const configs = require('../configs');
 
@@ -7,7 +8,15 @@ const appHttp = require('../appHttp');
 const appWs = require('../appWs');
 
 const port = normalizePort(configs.port);
-const server = http.createServer(appHttp.callback());
+const server = http.createServer(
+  configs.useHttps
+    ? {
+        key: fs.readFileSync(__dirname + '/../https/server.key', 'utf-8'),
+        cert: fs.readFileSync(__dirname + '/../https/server.crt', 'utf-8'),
+      }
+    : {},
+  appHttp.callback(),
+);
 appWs(server);
 
 server.listen(port);

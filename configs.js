@@ -4,4 +4,5 @@ const STAGE = process.env.STAGE;
 module.exports = {
   stage: STAGE,
   port: 3000,
+  useHttps: false,
 };

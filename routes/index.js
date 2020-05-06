@@ -151,7 +151,10 @@ router.post('/script/remove', async ctx => {
     };
     return;
   }
+  await waitUntill(() => !runningScriptNames.has(name), 200, 3600 * 1000);
+  runningScriptNames.add(name);
   fs.removeSync(getScriptFilePath(name));
+  runningScriptNames.delete(name);
   ctx.body = {
     ok: 1,
   };
@@ -186,7 +189,7 @@ router.get('/script/run/:name/:sign', async ctx => {
   }
   if (sign !== getSignature(name)) {
     const key = getUserIp(ctx);
-    if (opFrequencyTest(key, 10, 3)) {
+    if (!opFrequencyTest(key, 60, 10)) {
       // 失败次数过多IP加入黑名单
       blackList.set(key, true, YlMemCache.ONE_HOUR);
     }
