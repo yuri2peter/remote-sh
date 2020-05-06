@@ -1,6 +1,6 @@
 {
-  "name": "template-backend",
-  "version": "0.1.0",
+  "name": "remote-sh",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "cross-env STAGE=production node bin/www",
