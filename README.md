@@ -2,7 +2,7 @@
 
 Managing & runing your shell scripts on web!
 
-`remote-sh` provides a friendly way for managing your shell scripts on your server. you can add, edit, remove, run your scripts easliy.
+`remote-sh` provides a friendly way for managing your shell scripts on your server. you can add, edit, remove, run your scripts easily.
 
 Each script can be triggered by a UNIQUE URL so you can use it anywhere like:
 
