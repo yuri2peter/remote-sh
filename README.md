@@ -1,50 +1,50 @@
 # remote-sh
 
-中文文档 |
-[English Documents](./README.md)
+[中文文档](./README_zh_cn.md) |
+English Documents
 
-使用 Web 界面管理和运行你的 shell 脚本吧！
+Managing & runing your shell scripts on web!
 
-`remote-sh` 提供了一种相当友好的方式去管理你服务器上的 shell 脚本。 你可以轻松地添加、修改、删除、运行它们。
+`remote-sh` provides a friendly way for managing your shell scripts on your server. you can add, edit, remove, run your scripts easily.
 
-每个脚本可以被一个独特的 URL 请求触发运行，例如：
+Each script can be triggered by a UNIQUE URL so you can use it anywhere like:
 
 ```
 $ curl https://YOUR_REMOTE_SH_HOST/script/run/example.sh/UNIQUE_SIGN_FOR_THIS_SCRIPT
 ```
 
-这套系统利用 Access Key 策略来认证你的身份。
+The system use Access Key policy to identify yourself.
 
 ![img1](./assets/img1.png)
 ![img2](./assets/img2.png)
 ![img3](./assets/img3.png)
 
-## 安装
+## Install
 
 ```
 $ npm ci
 ```
 
-## 部署
+## Deploy
 
-请确保这行命令的持续运行：
+All you need is keeping this running:
 
 ```
 $ npm start
 ```
 
-### 端口
+### Port
 
-在文件 `./configs.js` 中设置端口（默认：3000）。
+Set port at file `./configs.js` ( default: 3000 ).
 
 ### HTTPS
 
-我们强烈建议启用 HTTPS。
+We strongly recommend that enabling the HTTPS feature.
 
-为了启用 HTTPS，请在文件`./configs.js`中设置`useHttps: true` 和 `port: 443`，然后拷贝你的证书文件至`./https/server.key` 和 `./https/server.crt`。
+To start your web server with HTTPS, you must set `useHttps: true` and `port: 443` at file `./configs.js`, then copy your certificate files to `./https/server.key` and `./https/server.crt`.
 
-你也可以用其他手段启用 HTTPS（我个人推荐 [steveltn/https-portal](https://hub.docker.com/r/steveltn/https-portal/)）。
+You can also use other ways for HTTPS ( for me, i'd like to try [steveltn/https-portal](https://hub.docker.com/r/steveltn/https-portal/) ).
 
-### 后台运行
+### Background Running
 
-使用 `pm2, screen, docker` 这些工具可以轻松做到这一点。
+`pm2, screen, docker` will help you doing that.
