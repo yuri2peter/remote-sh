@@ -173,7 +173,7 @@ router.post('/script/list', async ctx => {
 const runningScriptNames = new Set();
 
 // 执行脚本
-router.get('/script/run/:name/:sign', async ctx => {
+router.all('/script/run/:name/:sign', async ctx => {
   const { name, sign } = ctx.params;
   if (typeof name !== 'string' || !regexScriptName.test(name)) {
     ctx.body = {

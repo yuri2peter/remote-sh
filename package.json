@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "cross-env STAGE=production node bin/www",
+    "start": "node bin/www",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@yuri2/utils-general": "^1.2.4",
     "axios": "^0.19.2",
-    "cross-env": "^6.0.3",
     "debug": "^4.1.1",
     "fs-extra": "^9.0.0",
     "koa": "^2.7.0",
