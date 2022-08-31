@@ -21,7 +21,7 @@
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
     "koa2-cors": "^2.0.6",
-    "moment-timezone": "^0.5.27",
+    "moment-timezone": "^0.5.35",
     "node-fetch": "^2.6.0",
     "pug": "^2.0.3",
     "socket.io": "^2.3.0",
