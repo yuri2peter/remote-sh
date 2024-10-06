@@ -35,7 +35,7 @@ $ npm start
 
 ### 端口
 
-在文件 `./configs.js` 中设置端口（默认：3000）。
+在文件 `./configs.js` 中设置端口（默认：3020）。
 
 ### HTTPS
 
@@ -48,3 +48,9 @@ $ npm start
 ### 后台运行
 
 使用 `pm2, screen, docker` 这些工具可以轻松做到这一点。
+
+```bash
+pm2 start pm2.json
+pm2 save
+pm2 startup
+```

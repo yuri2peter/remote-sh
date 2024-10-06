@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const router = require('koa-router')();
 const YlMemCache = require('yl-mem-cache');
-const { md5, waitUntill, opFrequencyTest } = require('@yuri2/utils-general');
+const { md5, waitUntil, opFrequencyTest } = require('@yuri2/utils-general');
 const { spawn } = require('child_process');
 const { Readable } = require('stream');
 const filePathAK = require('path').resolve(__dirname, '../access_key');
@@ -151,7 +151,7 @@ router.post('/script/remove', async ctx => {
     };
     return;
   }
-  await waitUntill(() => !runningScriptNames.has(name), 200, 3600 * 1000);
+  await waitUntil(() => !runningScriptNames.has(name), 200, 3600 * 1000);
   runningScriptNames.add(name);
   fs.removeSync(getScriptFilePath(name));
   runningScriptNames.delete(name);
@@ -200,7 +200,7 @@ router.all('/script/run/:name/:sign', async ctx => {
   }
   const filePath = getScriptFilePath(name);
   if (fs.existsSync(filePath)) {
-    await waitUntill(() => !runningScriptNames.has(name), 200, 3600 * 1000);
+    await waitUntil(() => !runningScriptNames.has(name), 200, 3600 * 1000);
     runningScriptNames.add(name);
     const readable = new Readable();
     readable._read = () => {};

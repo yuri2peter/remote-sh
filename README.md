@@ -35,7 +35,7 @@ $ npm start
 
 ### Port
 
-Set port at file `./configs.js` ( default: 3000 ).
+Set port at file `./configs.js` ( default: 3020 ).
 
 ### HTTPS
 
@@ -48,3 +48,9 @@ You can also use other ways for HTTPS ( for me, i'd like to try [steveltn/https-
 ### Background Running
 
 `pm2, screen, docker` will help you doing that.
+
+```bash
+pm2 start pm2.json
+pm2 save
+pm2 startup
+```
